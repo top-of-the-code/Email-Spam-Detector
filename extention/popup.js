@@ -11,6 +11,12 @@ async function checkSpam() {
 
     const data = await response.json();
 
-    document.getElementById("result").innerText =
-        data.prediction === 1 ? "Spam 🚨" : "Not Spam ✅";
+    const result = document.getElementById("result");
+    const percent = Math.round(data.spam_prob * 100);
+
+    if (data.spam_prob >= 0.8) {
+        result.innerText = `Spam 🚨 (${percent}%)`;
+    } else {
+        result.innerText = "Not Spam ✅";
+    }
 }

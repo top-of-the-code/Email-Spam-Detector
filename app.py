@@ -6,6 +6,7 @@ from flask_cors import CORS
 app = Flask(__name__)   # FIRST create app
 CORS(app)               # THEN apply CORS
 
+# Load model and vectorizer
 model = pickle.load(open("model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
 
@@ -16,16 +17,20 @@ def count_links(text):
 def predict():
     text = request.json["email"]
 
+    # ML prediction
     vector = vectorizer.transform([text])
     prediction = model.predict(vector)[0]
     probs = model.predict_proba(vector)[0]
 
-    confidence = max(probs)
+    # ✅ IMPORTANT: get spam probability (index 1)
+    spam_prob = probs[1]
+
+    # Extra signal
     link_count = count_links(text)
 
     return jsonify({
         "prediction": int(prediction),
-        "confidence": float(confidence),
+        "spam_prob": float(spam_prob),
         "link_count": link_count
     })
 
